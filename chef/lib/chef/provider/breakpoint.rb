@@ -1,6 +1,5 @@
 #
-# Author:: Adam Jacob (<adam@opscode.com>)
-# Author:: AJ Christensen (<aj@opscode.com>)
+# Author:: Daniel DeLeo (<dan@kallistec.com>)
 # Copyright:: Copyright (c) 2008 Opscode, Inc.
 # License:: Apache License, Version 2.0
 #
@@ -18,22 +17,20 @@
 #
 
 class Chef
-  class Resource
-    class RubyBlock < Chef::Resource
-      def initialize(name, collection=nil, node=nil)
-        super(name, collection, node)
-        @resource_name = :ruby_block
-        @action = "create"
-        @allowed_actions.push(:create)
+  class Provider
+    class Breakpoint < Chef::Provider
+      
+      def load_current_resource
       end
-
-      def block(&block)
-        if block_given? and block
-          @block = block
-        else
-          @block
+      
+      def action_break
+        if defined?(Shef) && Shef.running?
+          @collection.iterator.pause
+          @new_resource.updated = true
+          @collection.iterator
         end
       end
+      
     end
   end
 end
