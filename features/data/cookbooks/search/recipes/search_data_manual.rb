@@ -1,7 +1,8 @@
 #
-# Author:: Daniel DeLeo (<dan@kallistec.com>)
-# Copyright:: Copyright (c) 2008 Opscode, Inc.
-# License:: Apache License, Version 2.0
+# Cookbook Name:: search
+# Recipe:: default
+#
+# Copyright 2009, Opscode
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,19 +17,17 @@
 # limitations under the License.
 #
 
-require "chef/resource/scm"
+# We have to sleep at least 10 seconds to confirm that the data has made it 
+# into the index.  We can only rely on this because we are in a test environment
+# in real-land Chef, the index is only eventually consistent.. and may take a
+# variable amount of time.
 
-class Chef
-  class Resource
-    class Subversion < Chef::Resource::Scm
-      
-      def initialize(name, collection=nil, node=nil)
-        super(name, collection, node)
-        @resource_name = :subversion
-        @provider = Chef::Provider::Subversion
-        allowed_actions << :force_export
-      end
-      
-    end
-  end
+
+sleep 10
+objects, start, total = search(:users, "*:*", nil, 0, 10) 
+
+objects.each do |entry|
+  file "#{node[:tmpdir]}/#{entry["id"]}"
 end
+
+
